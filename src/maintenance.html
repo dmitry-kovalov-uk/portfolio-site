@@ -38,8 +38,9 @@
       display: flex; align-items: center; gap: 14px;
     }
     .lights { display: flex; gap: 6px; }
-    .light  { width: 11px; height: 11px; border-radius: 50%; }
-    .light.r { background: #ff4444; box-shadow: 0 0 6px #ff4444; animation: blink-r 1.2s ease-in-out infinite; }
+    .light  { width: 11px; height: 11px; border-radius: 50%; transition: filter .15s; }
+    .light.r { background: #ff4444; box-shadow: 0 0 6px #ff4444; cursor: pointer; }
+    .light.r:hover { filter: brightness(1.4); }
     .light.y { background: #444; }
     .light.g { background: #1a2a1a; }
     @keyframes blink-r { 50% { opacity: .3; } }
@@ -142,7 +143,7 @@
 
   <div class="t-header">
     <div class="lights">
-      <div class="light r"></div>
+      <div class="light r" onclick="window.close()"></div>
       <div class="light y"></div>
       <div class="light g"></div>
     </div>
