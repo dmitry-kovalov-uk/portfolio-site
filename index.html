@@ -44,6 +44,8 @@
       opacity: 0;
       transform: scale(0.04);
       position: relative; z-index: 1;
+      will-change: transform;
+      filter: brightness(1);
     }
     .terminal.forged {
       animation: forge 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -853,8 +855,8 @@
 <div id="skill-tooltip"></div>
 
 <div id="dock-icon" onclick="unminimize()">
-  <div class="d-app">⌨</div>
-  <div class="d-label">KOVALOV.TERMINAL</div>
+  <div class="d-app"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="30" height="30"><ellipse cx="16" cy="21" rx="14" ry="5" fill="#00ff88"/><ellipse cx="16" cy="17" rx="8" ry="6" fill="#00cc55"/><ellipse cx="16" cy="14" rx="4" ry="3" fill="#00ffaa" opacity=".6"/><circle cx="9" cy="22" r="1.5" fill="#ffff00"/><circle cx="16" cy="23" r="1.5" fill="#ff8800"/><circle cx="23" cy="22" r="1.5" fill="#00ffff"/></svg></div>
+  <div class="d-label">Terminal</div>
 </div>
 <script>
 (function(){
@@ -865,42 +867,43 @@
 
   /* ── Red: close tab ── */
   document.getElementById('btn-close').addEventListener('click', () => {
-    window.location.href = 'about:blank';
+    window.close();
   });
 
   /* ── Yellow: minimize ── */
+  function spawnGhost(fromRect, toRect, onDone) {
+    const g = document.createElement('div');
+    g.style.cssText = `position:fixed;left:${fromRect.left}px;top:${fromRect.top}px;
+      width:${fromRect.width}px;height:${fromRect.height}px;
+      background:#1c2028;border:2px solid #3a4550;border-radius:14px;
+      z-index:9500;pointer-events:none;transition:none;`;
+    document.body.appendChild(g);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      g.style.transition = 'all .4s cubic-bezier(.4,0,1,1)';
+      g.style.left   = toRect.left   + 'px';
+      g.style.top    = toRect.top    + 'px';
+      g.style.width  = toRect.width  + 'px';
+      g.style.height = toRect.height + 'px';
+      g.style.opacity = '0';
+      g.style.borderRadius = '13px';
+    }));
+    setTimeout(() => { g.remove(); onDone && onDone(); }, 420);
+  }
+
   document.getElementById('btn-min').addEventListener('click', () => {
-    wrap.style.willChange = 'transform,opacity';
-    wrap.style.transition = EASE_IN;
-    wrap.style.transformOrigin = 'bottom center';
-    wrap.style.transform = 'scale(0.04) translateY(90vh)';
-    wrap.style.opacity = '0';
-    setTimeout(() => {
-      wrap.style.visibility = 'hidden';
-      wrap.style.willChange = '';
-      dock.classList.add('show');
-    }, 400);
+    const termRect = wrap.getBoundingClientRect();
+    wrap.style.visibility = 'hidden';
+    dock.classList.add('show');
+    const dockRect = dock.querySelector('.d-app').getBoundingClientRect();
+    spawnGhost(termRect, dockRect);
   });
 
   window.unminimize = () => {
+    const dockRect = dock.querySelector('.d-app').getBoundingClientRect();
     dock.classList.remove('show');
-    wrap.style.willChange = 'transform,opacity';
-    wrap.style.visibility = 'visible';
-    wrap.style.transition = 'none';
-    wrap.style.transform = 'scale(0.04) translateY(90vh)';
-    wrap.style.opacity = '0';
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      wrap.style.transition = EASE_OUT;
-      wrap.style.transform = '';
-      wrap.style.opacity = '';
-    }));
-    setTimeout(() => {
-      wrap.style.cssText = wrap.style.cssText
-        .replace(/transition:[^;]+;?/g,'')
-        .replace(/transform:[^;]+;?/g,'')
-        .replace(/opacity:[^;]+;?/g,'')
-        .replace(/will-change:[^;]+;?/g,'');
-    }, 450);
+    spawnGhost(dockRect, wrap.getBoundingClientRect(), () => {
+      wrap.style.visibility = 'visible';
+    });
   };
 
   /* ── Green: fullscreen ── */
