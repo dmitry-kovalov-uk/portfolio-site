@@ -126,17 +126,17 @@
       content:''; position:absolute; inset:0; z-index:10; pointer-events:none;
       background: radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.7) 100%);
     }
-    #cnv { position:absolute; inset:0; z-index:20; pointer-events:none; }
+    #cnv { position:absolute; inset:0; z-index:23; pointer-events:none; }
 
     /* ── Content ─────────────────────────────────────────────────── */
-    .s-content { position:relative; z-index:22; padding:28px 32px 34px; }
+    .s-content { position:relative; z-index:26; padding:28px 32px 34px; }
 
     @keyframes from-exhaust {
       0%   { opacity:0; transform:translateX(22px) translateY(-12px) scale(.93); filter:blur(4px) brightness(2); }
       55%  { opacity:1; filter:blur(0) brightness(1.15); }
       100% { opacity:1; transform:none; filter:none; }
     }
-    .rv { opacity: 0; filter: drop-shadow(0 0 4px #000810) drop-shadow(0 0 10px #000810) drop-shadow(0 0 20px #000810) drop-shadow(0 0 32px #000810) drop-shadow(0 0 46px #000810) drop-shadow(0 0 62px #000810) drop-shadow(0 0 80px #000810) drop-shadow(0 0 100px #000810); }
+    .rv { opacity: 0; }
     .rv.show { animation: from-exhaust .6s cubic-bezier(.22,1,.36,1) both; }
 
     .sys-line { font:.68rem/1 'Courier New',monospace; color:var(--green); letter-spacing:.08em; margin-bottom:20px; }
@@ -151,7 +151,17 @@
     .sec-hdr::after { content:''; flex:1; height:1px; background:linear-gradient(to right,#ff880044,transparent); }
 
     .skills { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:30px; }
-    .tag { font:.73rem/1 'Courier New',monospace; padding:6px 13px; border-radius:3px; letter-spacing:.07em; cursor:default; transition:all .2s; position:relative; opacity:.75; }
+    .tag { font:.73rem/1 'Courier New',monospace; padding:6px 13px; border-radius:3px; letter-spacing:.07em; cursor:default; transition:all .2s; position:relative; opacity:.9; }
+    #skill-tooltip {
+      position:fixed; z-index:9999; width:210px;
+      background:rgba(0,13,20,.7); border:1px solid #00d4ff55;
+      color:#00d4ff; border-radius:3px; backdrop-filter:blur(4px);
+      padding:8px 10px; pointer-events:none;
+      font:.67rem/1.5 'Courier New',monospace; text-transform:none; letter-spacing:0;
+      max-height:0; overflow:hidden; opacity:0;
+      transition:max-height .35s ease, opacity .2s ease;
+    }
+    #skill-tooltip.visible { max-height:120px; opacity:1; }
     .tag.core { background:#001a22; border:1px solid #00aacc44; color:var(--cyan); text-shadow:0 0 6px #00d4ff44; }
     .tag.base { background:#1a1000; border:1px solid #ff880033; color:#cc7700; }
     .tag:hover { border-color:var(--cyan); box-shadow:0 0 12px #00d4ff33; transform:translateY(-2px); opacity:.85; }
@@ -271,9 +281,20 @@
         <div class="rv" id="r4"><div class="sec-hdr">[ SKILLS_DATABASE ]</div></div>
         <div class="rv" id="r5">
           <div class="skills">
-            <span class="tag core">LINUX</span><span class="tag core">GIT</span><span class="tag core">GITHUB</span><span class="tag core">BASH</span>
-            <span class="tag base">ANSIBLE</span><span class="tag base">ANS.GALAXY</span><span class="tag base">ANS.MOLECULE</span>
-            <span class="tag base">AWS</span><span class="tag base">DOCKER</span><span class="tag base">PYTHON</span>
+            <span class="tag core" data-tip="Daily use of Ubuntu. System administration, package management, user permissions, logs, systemd and basic troubleshooting.">LINUX</span>
+            <span class="tag core" data-tip="Used version control for personal and work projects. Experience with branching, pull requests and collaboration workflows.">GIT</span>
+            <span class="tag core" data-tip="Hosted projects, documented workflows and managed automation through GitHub Actions.">GITHUB</span>
+            <span class="tag core" data-tip="Automated routine tasks with shell scripts. Wrote small utilities for backups, deployment and system maintenance.">BASH</span>
+            <span class="tag base" data-tip="Created playbooks for local provisioning, package installation and environment setup. Used Molecule for role testing.">ANSIBLE</span>
+            <span class="tag base" data-tip="Registry for reusable Ansible roles. Plug in community automation instead of writing from scratch.">ANS.GALAXY</span>
+            <span class="tag base" data-tip="Testing framework for Ansible roles. Spins up containers to verify playbooks before production.">ANS.MOLECULE</span>
+            <span class="tag base" data-tip="Worked with core AWS services including EC2, S3 and IAM. Practised deployment and cloud environment setup.">AWS</span>
+            <span class="tag base" data-tip="Containerised web applications and tested local deployment workflows using Docker Compose.">DOCKER</span>
+            <span class="tag base" data-tip="Writing automation scripts and glue code between tools to extend DevOps pipelines.">PYTHON</span>
+            <span class="tag base" data-tip="Configured DNS records for personal domain, connected VPS hosting and managed HTTPS certificates.">CLOUDFLARE</span>
+            <span class="tag base" data-tip="Provisioned Linux VPS, deployed personal portfolio and configured SSH access for server administration.">HETZNER</span>
+            <span class="tag base" data-tip="Configured web server for hosting static websites, domain routing and reverse proxy setup.">NGINX</span>
+            <span class="tag base" data-tip="Built basic CI/CD pipelines using GitHub Actions for deployment, testing and automation.">CI/CD</span>
           </div>
         </div>
         <div class="rv" id="r6"><div class="sec-hdr">[ COMMS_CHANNEL ]</div></div>
@@ -767,16 +788,50 @@
     persistFrame();
   }
 
+  function drawDarkOverlay() {
+    const grd = ctx.createRadialGradient(
+      cnv.width * .38, cnv.height * .45, 0,
+      cnv.width * .38, cnv.height * .45, cnv.width * .72
+    );
+    grd.addColorStop(0,   'rgba(0,8,16,.72)');
+    grd.addColorStop(0.7, 'rgba(0,8,16,.45)');
+    grd.addColorStop(1,   'rgba(0,8,16,0)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, cnv.width, cnv.height);
+  }
+
   function persistFrame() {
     ctx.clearRect(0, 0, cnv.width, cnv.height);
     maybeSpawn(); updateFlyObjs(); drawFlyObjs();
     maybeWeld();  drawWelds();
-    drawRadar();  /* drawn last — sits above everything */
+    drawDarkOverlay();
+    drawRadar();
     requestAnimationFrame(persistFrame);
   }
 
   /* ── Kick off ─────────────────────────────────────────────────── */
   setTimeout(() => requestAnimationFrame(introFrame), 200);
+})();
+</script>
+
+<div id="skill-tooltip"></div>
+<script>
+(function(){
+  const tooltip = document.getElementById('skill-tooltip');
+  let hide;
+  document.querySelectorAll('.tag[data-tip]').forEach(tag => {
+    tag.addEventListener('mouseenter', () => {
+      clearTimeout(hide);
+      const r = tag.getBoundingClientRect();
+      tooltip.textContent = tag.dataset.tip;
+      tooltip.style.left = r.left + 'px';
+      tooltip.style.top  = (r.bottom + 6) + 'px';
+      tooltip.classList.add('visible');
+    });
+    tag.addEventListener('mouseleave', () => {
+      hide = setTimeout(() => tooltip.classList.remove('visible'), 150);
+    });
+  });
 })();
 </script>
 </body>
