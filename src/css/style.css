@@ -159,7 +159,7 @@
     #skill-tooltip.visible { max-height:120px; opacity:1; }
     .tag.core { background:#001a22; border:1px solid #00aacc44; color:var(--cyan); text-shadow:0 0 6px #00d4ff44; }
     .tag.base { background:#1a1000; border:1px solid #ff880033; color:#cc7700; }
-    .tag:hover { border-color:var(--cyan); box-shadow:0 0 12px #00d4ff33; transform:translateY(-2px); opacity:.85; }
+    .tag:hover { border-color:var(--cyan); box-shadow:0 0 12px #00d4ff33; transform:translateY(-2px); opacity:1; }
 
     .cta { display:flex; flex-wrap:wrap; gap:12px; }
     .btn {
