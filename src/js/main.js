@@ -461,6 +461,7 @@
   /* ── Red: close tab ── */
   document.getElementById('btn-close').addEventListener('click', () => {
     window.close();
+    setTimeout(() => { if (history.length > 1) history.back(); }, 100);
   });
 
   /* ── Yellow: minimize ── */
