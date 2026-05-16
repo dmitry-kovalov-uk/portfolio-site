@@ -207,13 +207,13 @@
       .t-footer { justify-content:center; flex-direction:column; align-items:center; }
       .f-txt:first-child, .f-txt:last-child { display:none; }
       .h-title { font-size:.48rem; letter-spacing:.08em; }
+      #btn-max { width:22px; height:22px; }
     }
     @media (max-width: 400px) {
       .h-title { display:none; }
       .tag { font-size:.62rem; padding:4px 8px; }
       .btn { font-size:.72rem; padding:10px 14px; }
       .skills { gap:6px; }
-      #btn-max { display:block; }
     }
 
     /* ── Window controls ─────────────────────────────────────────── */
