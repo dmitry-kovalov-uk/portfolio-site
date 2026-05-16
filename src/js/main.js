@@ -484,15 +484,60 @@
     setTimeout(() => { g.remove(); onDone && onDone(); }, 420);
   }
 
+  let flightTimer = null;
+  let flightActive = false;
+  const dockLabel = dock.querySelector('.d-label');
+
+  function flyOnce() {
+    if (!flightActive) return;
+    const margin = 70;
+    const w = window.innerWidth, h = window.innerHeight;
+    const x = margin + Math.random() * (w - margin*2);
+    const y = margin + Math.random() * (h - margin*2);
+    const dur = 900 + Math.random() * 700;
+    const rot = (Math.random() - 0.5) * 30;
+    dock.style.transition = `left ${dur}ms cubic-bezier(.4,0,.6,1), top ${dur}ms cubic-bezier(.4,0,.6,1), transform ${dur}ms cubic-bezier(.4,0,.6,1)`;
+    dock.style.left = x + 'px';
+    dock.style.top  = y + 'px';
+    dock.style.bottom = 'auto';
+    dock.style.transform = `translateX(-50%) rotate(${rot}deg)`;
+    flightTimer = setTimeout(flyOnce, dur);
+  }
+
+  function startFlight() {
+    flightActive = true;
+    if (dockLabel) dockLabel.style.display = 'none';
+    const rect = dock.getBoundingClientRect();
+    dock.style.transition = 'none';
+    dock.style.left = (rect.left + rect.width / 2) + 'px';
+    dock.style.top  = rect.top + 'px';
+    dock.style.bottom = 'auto';
+    void dock.offsetHeight;
+    flyOnce();
+  }
+
+  function stopFlight() {
+    flightActive = false;
+    clearTimeout(flightTimer);
+    flightTimer = null;
+    dock.style.transition = '';
+    dock.style.left = '';
+    dock.style.top  = '';
+    dock.style.bottom = '';
+    dock.style.transform = '';
+    if (dockLabel) dockLabel.style.display = '';
+  }
+
   document.getElementById('btn-min').addEventListener('click', () => {
     const termRect = wrap.getBoundingClientRect();
     wrap.style.visibility = 'hidden';
     dock.classList.add('show');
     const dockRect = dock.querySelector('.d-app').getBoundingClientRect();
-    spawnGhost(termRect, dockRect);
+    spawnGhost(termRect, dockRect, () => startFlight());
   });
 
   window.unminimize = () => {
+    stopFlight();
     const dockRect = dock.querySelector('.d-app').getBoundingClientRect();
     dock.classList.remove('show');
     spawnGhost(dockRect, wrap.getBoundingClientRect(), () => {
