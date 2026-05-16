@@ -10,6 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Stamp asset version with commit SHA
+        run: |
+          SHA=${GITHUB_SHA::8}
+          sed -i "s/?v=[a-z0-9]*/?v=$SHA/g" src/index.html
+
       - name: Copy files to server
         uses: appleboy/scp-action@v0.1.7
         with:
