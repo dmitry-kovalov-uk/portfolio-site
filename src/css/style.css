@@ -213,7 +213,7 @@
       .tag { font-size:.62rem; padding:4px 8px; }
       .btn { font-size:.72rem; padding:10px 14px; }
       .skills { gap:6px; }
-      #btn-max { display:none; }
+      #btn-max { display:block; }
     }
 
     /* ── Window controls ─────────────────────────────────────────── */
