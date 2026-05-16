@@ -139,13 +139,14 @@
     .rv { opacity: 0; }
     .rv.show { animation: from-exhaust .6s cubic-bezier(.22,1,.36,1) both; }
 
-    .sys-line { font:.68rem/1 'Courier New',monospace; color:var(--green); letter-spacing:.08em; margin-bottom:20px; }
-    .hero-name { font:700 clamp(2rem,4.5vw,3rem)/1.1 'Courier New',monospace; color:var(--cyan); text-shadow:0 0 28px #00d4ff66; letter-spacing:.04em; margin-bottom:6px; }
-    .hero-role { font:.9rem/1 'Courier New',monospace; color:var(--amber); letter-spacing:.14em; text-shadow:0 0 8px #ff880055; margin-bottom:18px; }
-    .hero-bio  { font:.78rem/1.8 'Courier New',monospace; color:#4a8090; max-width:480px; margin-bottom:30px; }
+    .sys-line { font:.68rem/1 'Courier New',monospace; color:var(--green); letter-spacing:.08em; margin-bottom:20px; text-shadow:0 0 8px #000810,0 0 16px #000810,0 0 24px #000810,2px 0 14px #000810,-2px 0 14px #000810,0 2px 14px #000810,0 -2px 14px #000810; }
+    .hero-name { font:700 clamp(2rem,4.5vw,3rem)/1.1 'Courier New',monospace; color:var(--cyan); letter-spacing:.04em; margin-bottom:6px; text-shadow:0 0 28px #00d4ff66,0 0 8px #000810,0 0 18px #000810,0 0 30px #000810,4px 0 20px #000810,-4px 0 20px #000810,0 4px 20px #000810,0 -4px 20px #000810; }
+    .hero-role { font:.9rem/1 'Courier New',monospace; color:var(--amber); letter-spacing:.14em; margin-bottom:18px; text-shadow:0 0 8px #ff880055,0 0 6px #000810,0 0 16px #000810,0 0 28px #000810,0 0 40px #000810,5px 0 24px #000810,-5px 0 24px #000810,0 5px 24px #000810,0 -5px 24px #000810,8px 0 30px #000810,-8px 0 30px #000810,0 8px 30px #000810,0 -8px 30px #000810; }
+    .hero-bio  { font:.78rem/1.8 'Courier New',monospace; color:#4a8090; max-width:480px; margin-bottom:30px; text-shadow:0 0 6px #000810,0 0 14px #000810,0 0 24px #000810,0 0 36px #000810,5px 0 24px #000810,-5px 0 24px #000810,0 5px 24px #000810,0 -5px 24px #000810,8px 0 30px #000810,-8px 0 30px #000810,0 8px 30px #000810,0 -8px 30px #000810; }
     .sec-hdr {
       font:.62rem/1 'Courier New',monospace; color:var(--amber); letter-spacing:.18em; text-transform:uppercase;
       margin-bottom:14px; display:flex; align-items:center; gap:10px;
+      text-shadow:0 0 8px #ff880055,0 0 6px #000810,0 0 16px #000810,0 0 28px #000810,0 0 40px #000810,5px 0 24px #000810,-5px 0 24px #000810,0 5px 24px #000810,0 -5px 24px #000810,8px 0 30px #000810,-8px 0 30px #000810,0 8px 30px #000810,0 -8px 30px #000810;
     }
     .sec-hdr::after { content:''; flex:1; height:1px; background:linear-gradient(to right,#ff880044,transparent); }
 
