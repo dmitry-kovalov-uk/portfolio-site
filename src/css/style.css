@@ -61,9 +61,7 @@
     .light:hover { filter: brightness(1.4); }
     .light.r { background: #ff4444; box-shadow: 0 0 6px #ff4444; }
     .light.y { background: #ffaa00; box-shadow: 0 0 6px #ffaa00; }
-    .light.g { background: var(--green); box-shadow: 0 0 7px var(--green);
-                animation: pulse 2.1s ease-in-out infinite; }
-    @keyframes pulse { 50% { opacity: .35; } }
+    .light.g { background: var(--green); box-shadow: 0 0 7px var(--green); }
 
     .h-title {
       flex: 1; text-align: center;
@@ -194,7 +192,6 @@
       .hero-role { font-size:.82rem; }
       .hero-bio  { font-size:.74rem; }
       .tag { font-size:.68rem; padding:5px 10px; }
-      #btn-max { animation: none; opacity: 1; }
     }
     @media (max-width: 600px) {
       .side { display:none; }
