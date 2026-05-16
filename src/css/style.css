@@ -194,6 +194,7 @@
       .hero-role { font-size:.82rem; }
       .hero-bio  { font-size:.74rem; }
       .tag { font-size:.68rem; padding:5px 10px; }
+      #btn-max { animation: none; opacity: 1; }
     }
     @media (max-width: 600px) {
       .side { display:none; }
@@ -207,7 +208,6 @@
       .t-footer { justify-content:center; flex-direction:column; align-items:center; }
       .f-txt:first-child, .f-txt:last-child { display:none; }
       .h-title { font-size:.48rem; letter-spacing:.08em; }
-      #btn-max { animation: none; opacity: 1; }
     }
     @media (max-width: 400px) {
       .h-title { display:none; }
