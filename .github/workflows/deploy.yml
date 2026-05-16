@@ -16,7 +16,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "src/,Dockerfile,docker-compose.yml"
+          source: "src/,Dockerfile,docker-compose.yml,nginx.conf"
           target: /opt/kovalov-site
 
       - name: Rebuild and restart container

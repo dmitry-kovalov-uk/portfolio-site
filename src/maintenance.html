@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Maintenance — kovalov.uk</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPGVsbGlwc2UgY3g9IjE2IiBjeT0iMjEiIHJ4PSIxNCIgcnk9IjUiIGZpbGw9IiMwMGZmODgiLz4KICA8ZWxsaXBzZSBjeD0iMTYiIGN5PSIxNyIgcng9IjgiIHJ5PSI2IiBmaWxsPSIjMDBjYzU1Ii8+CiAgPGVsbGlwc2UgY3g9IjE2IiBjeT0iMTQiIHJ4PSI0IiByeT0iMyIgZmlsbD0iIzAwZmZhYSIgb3BhY2l0eT0iMC42Ii8+CiAgPGNpcmNsZSBjeD0iOSIgY3k9IjIyIiByPSIxLjUiIGZpbGw9IiNmZmZmMDAiLz4KICA8Y2lyY2xlIGN4PSIxNiIgY3k9IjIzIiByPSIxLjUiIGZpbGw9IiNmZjg4MDAiLz4KICA8Y2lyY2xlIGN4PSIyMyIgY3k9IjIyIiByPSIxLjUiIGZpbGw9IiMwMGZmZmYiLz4KPC9zdmc+"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --amber:  #ff8800;
+      --red:    #ff4444;
+      --screen: #000810;
+      --frame:  #1c2028;
+      --border: #2a3540;
+    }
+
+    html, body {
+      width: 100%; min-height: 100vh;
+      background: #030508;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Courier New', monospace;
+    }
+
+    .terminal {
+      width: min(96vw, 720px);
+      background: var(--frame);
+      border-radius: 14px;
+      border: 2px solid #3a4550;
+      box-shadow: 0 0 0 1px #060810, 0 0 60px rgba(255,68,68,.08), 0 28px 80px rgba(0,0,0,.9);
+      overflow: hidden;
+    }
+
+    .t-header {
+      background: #12161e; border-bottom: 1px solid var(--border);
+      padding: 9px 18px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .lights { display: flex; gap: 6px; }
+    .light  { width: 11px; height: 11px; border-radius: 50%; }
+    .light.r { background: #ff4444; box-shadow: 0 0 6px #ff4444; animation: blink-r 1.2s ease-in-out infinite; }
+    .light.y { background: #444; }
+    .light.g { background: #1a2a1a; }
+    @keyframes blink-r { 50% { opacity: .3; } }
+
+    .h-title {
+      flex: 1; text-align: center;
+      font: .58rem/1 'Courier New', monospace;
+      letter-spacing: .18em; color: #ff440066; text-transform: uppercase;
+    }
+    .h-status { font: .6rem/1 'Courier New', monospace; letter-spacing: .1em; color: #ff444488; }
+
+    .screen {
+      position: relative; background: var(--screen); overflow: hidden;
+      min-height: 340px; display: flex; align-items: center; justify-content: center;
+    }
+    .screen::before {
+      content:''; position:absolute; inset:0; z-index:2; pointer-events:none;
+      background: repeating-linear-gradient(to bottom, transparent 0,transparent 2px,rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 4px);
+    }
+    .screen::after {
+      content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
+      background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.75) 100%);
+    }
+
+    canvas#noise { position:absolute; inset:0; z-index:0; opacity:.04; pointer-events:none; }
+
+    .content {
+      position: relative; z-index: 3;
+      padding: 40px 36px; text-align: center;
+    }
+
+    .warn-icon {
+      font-size: 2.8rem; margin-bottom: 18px;
+      animation: icon-pulse 1.8s ease-in-out infinite;
+      display: block;
+    }
+    @keyframes icon-pulse { 0%,100%{opacity:1;} 50%{opacity:.25;} }
+
+    .status-line {
+      font: .65rem/1 'Courier New', monospace;
+      color: #ff444488; letter-spacing: .16em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .main-title {
+      font: 700 clamp(1.6rem,4vw,2.4rem)/1.1 'Courier New', monospace;
+      color: var(--amber); letter-spacing: .06em;
+      text-shadow: 0 0 24px #ff880066;
+      margin-bottom: 8px;
+    }
+
+    .sub-title {
+      font: .85rem/1 'Courier New', monospace;
+      color: #ff4444; letter-spacing: .12em; text-transform: uppercase;
+      text-shadow: 0 0 10px #ff444466;
+      margin-bottom: 28px;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, #ff880044, transparent);
+      margin: 0 auto 28px; width: 80%;
+    }
+
+    .msg {
+      font: .75rem/1.85 'Courier New', monospace;
+      color: #6a7a6a; max-width: 440px; margin: 0 auto 28px;
+    }
+    .msg span { color: #aa8844; }
+
+    .progress-wrap {
+      width: 260px; margin: 0 auto 24px;
+      background: #0a1018; border: 1px solid #2a3540; border-radius: 2px; height: 6px; overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%; background: linear-gradient(to right, #ff880088, #ff8800);
+      animation: progress 3.5s ease-in-out infinite alternate;
+      border-radius: 2px;
+    }
+    @keyframes progress { 0%{width:15%;} 100%{width:88%;} }
+
+    .eta {
+      font: .62rem/1 'Courier New', monospace;
+      color: #3a5040; letter-spacing: .12em; text-transform: uppercase;
+    }
+
+    .t-footer {
+      background: #12161e; border-top: 1px solid var(--border);
+      padding: 7px 18px; display: flex; align-items: center; justify-content: center;
+      gap: 20px; flex-wrap: wrap;
+    }
+    .f-txt { font: .58rem/1 'Courier New', monospace; color: #2a3a2a; letter-spacing: .08em; }
+    .f-err { font: .58rem/1 'Courier New', monospace; color: #ff444444; letter-spacing: .08em;
+             animation: blink-r 2s step-end infinite; }
+  </style>
+</head>
+<body>
+
+<div class="terminal">
+
+  <div class="t-header">
+    <div class="lights">
+      <div class="light r"></div>
+      <div class="light y"></div>
+      <div class="light g"></div>
+    </div>
+    <div class="h-title">maintenance_mode.sh — active</div>
+    <div class="h-status">SYS:OFFLINE</div>
+  </div>
+
+  <div class="screen">
+    <canvas id="noise"></canvas>
+    <div class="content">
+      <span class="warn-icon">⚠</span>
+      <p class="status-line">&gt; process: system_maintenance — running</p>
+      <h1 class="main-title">SCHEDULED<br>MAINTENANCE</h1>
+      <p class="sub-title">// system temporarily offline</p>
+      <div class="divider"></div>
+      <p class="msg">
+        Infrastructure updates in progress.<br>
+        <span>Expected downtime: short.</span><br>
+        The system will return shortly.
+      </p>
+      <div class="progress-wrap">
+        <div class="progress-bar"></div>
+      </div>
+      <p class="eta">&gt; stand by&hellip;</p>
+    </div>
+  </div>
+
+  <div class="t-footer">
+    <span class="f-txt">kovalov.uk</span>
+    <span class="f-err">ERR: SERVICE_UNAVAILABLE</span>
+    <span class="f-txt">dmitry@kovalov.uk</span>
+  </div>
+
+</div>
+
+<script>
+  const c = document.getElementById('noise');
+  const ctx = c.getContext('2d');
+  function resize() { c.width = c.offsetWidth; c.height = c.offsetHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  function drawNoise() {
+    const d = ctx.createImageData(c.width, c.height);
+    for (let i = 0; i < d.data.length; i += 4) {
+      const v = Math.random() * 255 | 0;
+      d.data[i] = d.data[i+1] = d.data[i+2] = v;
+      d.data[i+3] = 255;
+    }
+    ctx.putImageData(d, 0, 0);
+    requestAnimationFrame(drawNoise);
+  }
+  drawNoise();
+</script>
+</body>
+</html>
