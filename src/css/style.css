@@ -129,8 +129,8 @@
       55%  { opacity:1; filter:blur(0) brightness(1.15); }
       100% { opacity:1; transform:none; filter:none; }
     }
-    .rv { opacity: 0; }
-    .rv.show { animation: from-exhaust .6s cubic-bezier(.22,1,.36,1) both; }
+    .rv { opacity: 0; pointer-events: none; }
+    .rv.show { animation: from-exhaust .6s cubic-bezier(.22,1,.36,1) both; pointer-events: auto; }
 
     .sys-line { font:.68rem/1 'Courier New',monospace; color:var(--green); letter-spacing:.08em; margin-bottom:20px; }
     .hero-name { font:700 clamp(2rem,4.5vw,3rem)/1.1 'Courier New',monospace; color:var(--cyan); letter-spacing:.04em; margin-bottom:6px; text-shadow:0 0 28px #00d4ff66; }
