@@ -150,20 +150,10 @@
     .sec-hdr::after { content:''; flex:1; height:1px; background:linear-gradient(to right,#ff880044,transparent); }
 
     .skills { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:30px; }
-    .tag { font:.73rem/1 'Courier New',monospace; padding:6px 13px; border-radius:3px; letter-spacing:.07em; cursor:default; transition:all .2s; position:relative; }
+    .tag { font:.73rem/1 'Courier New',monospace; padding:6px 13px; border-radius:3px; letter-spacing:.07em; cursor:default; transition:all .2s; }
     .tag.core { background:#001a22; border:1px solid #00aacc44; color:var(--cyan); text-shadow:0 0 6px #00d4ff44; }
     .tag.base { background:#1a1000; border:1px solid #ff880033; color:#cc7700; }
     .tag:hover { border-color:var(--cyan); box-shadow:0 0 12px #00d4ff33; transform:translateY(-2px); }
-    #skill-tooltip {
-      position:fixed; z-index:9999;
-      width:210px; background:rgba(0,13,20,.7); border:1px solid #00d4ff55;
-      color:#00d4ff; border-radius:3px; backdrop-filter:blur(4px);
-      padding:8px 10px; pointer-events:none;
-      font:.67rem/1.5 'Courier New',monospace; text-transform:none; letter-spacing:0;
-      max-height:0; overflow:hidden; opacity:0;
-      transition:max-height .35s ease, opacity .2s ease;
-    }
-    #skill-tooltip.visible { max-height:120px; opacity:1; }
 
     .cta { display:flex; flex-wrap:wrap; gap:12px; }
     .btn {
@@ -280,16 +270,9 @@
         <div class="rv" id="r4"><div class="sec-hdr">[ SKILLS_DATABASE ]</div></div>
         <div class="rv" id="r5">
           <div class="skills">
-            <span class="tag core" data-tip="Foundation of all DevOps work. Managing servers, processes, permissions and networking from the command line.">LINUX</span>
-            <span class="tag core" data-tip="Version control for infrastructure and app code. Every change is tracked, reviewable and reversible.">GIT</span>
-            <span class="tag core" data-tip="Hosting repos, running CI/CD pipelines via Actions, collaborating through pull requests.">GITHUB</span>
-            <span class="tag core" data-tip="Automating routine ops tasks: deployments, log parsing, health checks and server config.">BASH</span>
-            <span class="tag base" data-tip="Agentless config management. Describes server state as code and applies it consistently across all hosts.">ANSIBLE</span>
-            <span class="tag base" data-tip="Registry for reusable Ansible roles. Plug in community automation instead of writing from scratch.">ANS.GALAXY</span>
-            <span class="tag base" data-tip="Testing framework for Ansible roles. Spins up containers to verify playbooks before production.">ANS.MOLECULE</span>
-            <span class="tag base" data-tip="Cloud platform. Provision servers, storage, networking and managed services on demand.">AWS</span>
-            <span class="tag base" data-tip='Containerises apps so they run identically in dev, staging and prod. No more "works on my machine".'>DOCKER</span>
-            <span class="tag base" data-tip="Writing automation scripts and glue code between tools to extend DevOps pipelines.">PYTHON</span>
+            <span class="tag core">LINUX</span><span class="tag core">GIT</span><span class="tag core">GITHUB</span><span class="tag core">BASH</span>
+            <span class="tag base">ANSIBLE</span><span class="tag base">ANS.GALAXY</span><span class="tag base">ANS.MOLECULE</span>
+            <span class="tag base">AWS</span><span class="tag base">DOCKER</span><span class="tag base">PYTHON</span>
           </div>
         </div>
         <div class="rv" id="r6"><div class="sec-hdr">[ COMMS_CHANNEL ]</div></div>
@@ -793,27 +776,6 @@
 
   /* ── Kick off ─────────────────────────────────────────────────── */
   setTimeout(() => requestAnimationFrame(introFrame), 200);
-})();
-</script>
-
-<div id="skill-tooltip"></div>
-<script>
-(function(){
-  const tooltip = document.getElementById('skill-tooltip');
-  let hide;
-  document.querySelectorAll('.tag[data-tip]').forEach(tag => {
-    tag.addEventListener('mouseenter', () => {
-      clearTimeout(hide);
-      const r = tag.getBoundingClientRect();
-      tooltip.textContent = tag.dataset.tip;
-      tooltip.style.left = r.left + 'px';
-      tooltip.style.top  = (r.bottom + 6) + 'px';
-      tooltip.classList.add('visible');
-    });
-    tag.addEventListener('mouseleave', () => {
-      hide = setTimeout(() => tooltip.classList.remove('visible'), 150);
-    });
-  });
 })();
 </script>
 </body>
