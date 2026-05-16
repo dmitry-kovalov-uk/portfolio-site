@@ -487,6 +487,7 @@
   let flightTimer = null;
   let flightActive = false;
   const dockLabel = dock.querySelector('.d-label');
+  const canHover = window.matchMedia('(hover: hover)').matches;
 
   function flyOnce() {
     if (!flightActive) return;
@@ -505,7 +506,9 @@
   }
 
   function startFlight() {
+    if (flightActive) return;
     flightActive = true;
+    dock.classList.add('flying');
     if (dockLabel) dockLabel.style.display = 'none';
     const rect = dock.getBoundingClientRect();
     dock.style.transition = 'none';
@@ -520,6 +523,7 @@
     flightActive = false;
     clearTimeout(flightTimer);
     flightTimer = null;
+    dock.classList.remove('flying');
     dock.style.transition = '';
     dock.style.left = '';
     dock.style.top  = '';
@@ -528,12 +532,22 @@
     if (dockLabel) dockLabel.style.display = '';
   }
 
+  if (canHover) {
+    dock.addEventListener('mouseenter', () => { if (!flightActive) startFlight(); });
+    dock.addEventListener('click',      () => { if (flightActive)  window.unminimize(); });
+  } else {
+    dock.addEventListener('click', () => {
+      if (flightActive) window.unminimize();
+      else              startFlight();
+    });
+  }
+
   document.getElementById('btn-min').addEventListener('click', () => {
     const termRect = wrap.getBoundingClientRect();
     wrap.style.visibility = 'hidden';
     dock.classList.add('show');
     const dockRect = dock.querySelector('.d-app').getBoundingClientRect();
-    spawnGhost(termRect, dockRect, () => startFlight());
+    spawnGhost(termRect, dockRect);
   });
 
   window.unminimize = () => {
