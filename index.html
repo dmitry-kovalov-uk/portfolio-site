@@ -63,7 +63,8 @@
       display: flex; align-items: center; gap: 14px;
     }
     .lights { display: flex; gap: 6px; }
-    .light  { width: 11px; height: 11px; border-radius: 50%; }
+    .light  { width: 11px; height: 11px; border-radius: 50%; cursor: pointer; transition: filter .15s; }
+    .light:hover { filter: brightness(1.4); }
     .light.r { background: #ff4444; box-shadow: 0 0 6px #ff4444; }
     .light.y { background: #ffaa00; box-shadow: 0 0 6px #ffaa00; }
     .light.g { background: var(--green); box-shadow: 0 0 7px var(--green);
@@ -215,6 +216,42 @@
       .tag { font-size:.62rem; padding:4px 8px; }
       .btn { font-size:.72rem; padding:10px 14px; }
       .skills { gap:6px; }
+      #btn-max { display:none; }
+    }
+
+    /* ── Window controls ─────────────────────────────────────────── */
+    #closed-overlay {
+      display:none; position:fixed; inset:0; z-index:9000;
+      background:#000810; align-items:center; justify-content:center;
+      flex-direction:column; gap:18px;
+    }
+    #closed-overlay.show { display:flex; }
+    #closed-overlay p {
+      font:1rem/1 'Courier New',monospace; color:#ff4444;
+      letter-spacing:.2em; text-shadow:0 0 20px #ff4444;
+    }
+    #closed-overlay button {
+      font:.72rem/1 'Courier New',monospace; letter-spacing:.15em;
+      background:none; border:1px solid #ff444466; color:#ff4444;
+      padding:8px 18px; cursor:pointer; border-radius:3px;
+    }
+    #closed-overlay button:hover { background:#ff444411; }
+
+    #dock-icon {
+      display:none; position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+      z-index:9000; background:#1c2028; border:1px solid #3a4550;
+      border-radius:10px; padding:8px 14px; cursor:pointer;
+      font:.65rem/1 'Courier New',monospace; color:#00d4ff;
+      letter-spacing:.1em; box-shadow:0 4px 20px rgba(0,0,0,.6);
+      align-items:center; gap:8px;
+    }
+    #dock-icon.show { display:flex; }
+    #dock-icon:hover { border-color:#00d4ff55; }
+
+    #dock-icon span.icon {
+      width:32px; height:32px; background:#1e2d3a; border-radius:7px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:16px; border:1px solid #3a5060;
     }
   </style>
 </head>
@@ -227,7 +264,7 @@
 
   <div class="t-header">
     <div class="lights">
-      <div class="light r"></div><div class="light y"></div><div class="light g"></div>
+      <div class="light r" id="btn-close"></div><div class="light y" id="btn-min"></div><div class="light g" id="btn-max"></div>
     </div>
     <div class="h-title">"Make it so." &nbsp;·&nbsp; Captain Picard, Star Trek TNG</div>
     <div class="h-status">SYS:ONLINE</div>
@@ -825,7 +862,64 @@
 </script>
 
 <div id="skill-tooltip"></div>
+
+<div id="dock-icon" onclick="unminimize()">
+  <span class="icon">⌨</span><span>KOVALOV.TERMINAL</span>
+</div>
 <script>
+(function(){
+  const terminal = document.getElementById('terminal');
+  const dockIcon = document.getElementById('dock-icon');
+
+  /* ── Red: close tab ── */
+  document.getElementById('btn-close').addEventListener('click', () => {
+    window.open('', '_self', '');
+    window.close();
+  });
+
+  /* ── Yellow: minimize ── */
+  document.getElementById('btn-min').addEventListener('click', () => {
+    terminal.style.transition = 'transform .4s cubic-bezier(.4,0,1,1), opacity .35s';
+    terminal.style.transformOrigin = 'bottom center';
+    terminal.style.transform = 'scale(0.06) translateY(600px)';
+    terminal.style.opacity = '0';
+    terminal.style.pointerEvents = 'none';
+    setTimeout(() => {
+      terminal.style.visibility = 'hidden';
+      dockIcon.classList.add('show');
+    }, 380);
+  });
+
+  window.unminimize = () => {
+    dockIcon.classList.remove('show');
+    terminal.style.visibility = 'visible';
+    terminal.style.transition = 'none';
+    terminal.style.transform = 'scale(0.06) translateY(600px)';
+    terminal.style.opacity = '0';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      terminal.style.transition = 'transform .4s cubic-bezier(0,0,.2,1), opacity .35s';
+      terminal.style.transform = '';
+      terminal.style.opacity = '';
+    }));
+    setTimeout(() => {
+      terminal.style.transition = '';
+      terminal.style.transformOrigin = '';
+      terminal.style.pointerEvents = '';
+    }, 420);
+  };
+
+  /* ── Green: fullscreen ── */
+  document.getElementById('btn-max').addEventListener('click', async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch(e) { console.warn('Fullscreen:', e); }
+  });
+})();
+
 (function(){
   const tooltip = document.getElementById('skill-tooltip');
   let hide;
