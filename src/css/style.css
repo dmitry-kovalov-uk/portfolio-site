@@ -235,6 +235,17 @@
       filter: drop-shadow(0 0 14px rgba(0,255,136,.65)) drop-shadow(0 0 28px rgba(0,255,136,.3));
     }
     #dock-icon.flying .d-app svg { width: 50px; height: 50px; }
+    .d-msg {
+      position:absolute; bottom:100%; left:50%; margin-bottom:10px;
+      transform:translateX(-50%) translateY(6px);
+      font:.65rem/1 'Courier New',monospace; letter-spacing:.14em; text-transform:uppercase;
+      color:var(--green); text-shadow:0 0 6px #00ff88;
+      background:rgba(0,20,12,.85); border:1px solid #00ff8866;
+      border-radius:4px; padding:6px 12px; white-space:nowrap;
+      pointer-events:none; opacity:0;
+      transition:opacity .35s ease, transform .35s ease;
+    }
+    .d-msg.show { opacity:1; transform:translateX(-50%) translateY(0); }
     #dock-icon .d-label {
       font:.58rem/1 'Courier New',monospace; color:rgba(255,255,255,.75);
       background:rgba(0,0,0,.55); backdrop-filter:blur(6px);

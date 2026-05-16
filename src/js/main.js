@@ -486,8 +486,29 @@
 
   let flightTimer = null;
   let flightActive = false;
+  let catchHintEl = null;
   const dockLabel = dock.querySelector('.d-label');
   const canHover = window.matchMedia('(hover: hover)').matches;
+
+  function showCatchHint() {
+    hideCatchHint();
+    const el = document.createElement('div');
+    el.className = 'd-msg';
+    el.textContent = 'Catch me!';
+    dock.appendChild(el);
+    catchHintEl = el;
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => {
+      if (el === catchHintEl) {
+        el.classList.remove('show');
+        setTimeout(() => { if (el === catchHintEl) hideCatchHint(); }, 400);
+      }
+    }, 4500);
+  }
+
+  function hideCatchHint() {
+    if (catchHintEl) { catchHintEl.remove(); catchHintEl = null; }
+  }
 
   function flyOnce() {
     if (!flightActive) return;
@@ -510,6 +531,7 @@
     flightActive = true;
     dock.classList.add('flying');
     if (dockLabel) dockLabel.style.display = 'none';
+    showCatchHint();
     const rect = dock.getBoundingClientRect();
     dock.style.transition = 'none';
     dock.style.left = (rect.left + rect.width / 2) + 'px';
@@ -523,6 +545,7 @@
     flightActive = false;
     clearTimeout(flightTimer);
     flightTimer = null;
+    hideCatchHint();
     dock.classList.remove('flying');
     dock.style.transition = '';
     dock.style.left = '';
