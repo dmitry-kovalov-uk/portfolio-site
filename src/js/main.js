@@ -99,13 +99,13 @@
 
   function iShipPos(t) {
     const W = fullCnv.width, H = fullCnv.height;
-    const x0=W+120, y0=-120, cpx=W*.72, cpy=H*.14, tx=W*.5, ty=H*.5;
+    const x0=-120, y0=H+120, cpx=W*.28, cpy=H*.86, tx=W*.5, ty=H*.5;
     if (t < .78) {
       const s=t/.78, q=1-s;
       return { x:q*q*x0+2*q*s*cpx+s*s*tx, y:q*q*y0+2*q*s*cpy+s*s*ty };
     }
     const s=(t-.78)/.22;
-    return { x:tx - s*W*.8, y:ty + s*H*.42 };
+    return { x:tx + s*W*.8, y:ty - s*H*.42 };
   }
   function iShipAngle(t) {
     const a=iShipPos(Math.max(0,t-.007)), b=iShipPos(Math.min(1,t+.007));
