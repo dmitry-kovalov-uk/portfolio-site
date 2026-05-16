@@ -525,7 +525,11 @@
       clearTimeout(hide);
       const r = tag.getBoundingClientRect();
       tooltip.textContent = tag.dataset.tip;
-      tooltip.style.left = r.left + 'px';
+      const m = 8;
+      const tw = tooltip.offsetWidth || 210;
+      const maxLeft = window.innerWidth - tw - m;
+      const left = Math.max(m, Math.min(r.left, maxLeft));
+      tooltip.style.left = left + 'px';
       tooltip.style.top  = (r.bottom + 6) + 'px';
       tooltip.classList.add('visible');
     });
