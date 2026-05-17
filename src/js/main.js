@@ -617,7 +617,8 @@
     el.style.cssText =
       `position:fixed;z-index:9560;pointer-events:none;will-change:transform,opacity;` +
       `left:${cx - size/2}px;top:${cy - size/2}px;width:${size}px;height:${size}px;` +
-      `transition:transform .9s cubic-bezier(.45,.02,.85,.6);` +
+      `transform:translate(0,0) rotate(0deg);` +
+      `transition:transform 1.4s cubic-bezier(.5,0,.9,.55);` +
       `filter:drop-shadow(0 0 6px #00331acc);`;
     el.innerHTML =
       `<svg viewBox="0 0 32 32" width="60" height="60">` +
@@ -632,22 +633,31 @@
       `</svg>`;
     document.body.appendChild(el);
 
-    const fallTo = window.innerHeight - 50;
-    const fallDist = fallTo - cy;
     const driftX = (Math.random() - .5) * 80;
-    const tilt = (Math.random() - .5) * 60;
-
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      el.style.transform = `translate(${driftX}px,${fallDist}px) rotate(${tilt}deg)`;
-    }));
+    const tilt   = (Math.random() - .5) * 60;
+    const peakY  = Math.max(60, cy - 180);
+    const landY  = Math.min(window.innerHeight - 60, cy + 140);
+    const popY   = peakY - cy;
+    const fallY  = landY - cy;
 
     setTimeout(() => {
-      el.style.transition = 'transform .18s ease-out';
-      el.style.transform  = `translate(${driftX}px,${fallDist - 14}px) rotate(${tilt}deg)`;
+      el.style.transition = 'transform .35s cubic-bezier(.2,.7,.5,1)';
+      el.style.transform  = `translate(${driftX*.35}px,${popY}px) rotate(${tilt*.4}deg)`;
+    }, 30);
+
+    setTimeout(() => {
+      el.style.transition = 'transform 1.25s cubic-bezier(.55,0,.9,.55)';
+      el.style.transform  = `translate(${driftX}px,${fallY}px) rotate(${tilt}deg)`;
+    }, 410);
+
+    setTimeout(() => {
+      el.style.transition = 'transform .22s ease-out';
+      el.style.transform  = `translate(${driftX}px,${fallY - 16}px) rotate(${tilt}deg)`;
       setTimeout(() => {
-        el.style.transform = `translate(${driftX}px,${fallDist}px) rotate(${tilt}deg)`;
-      }, 180);
-    }, 900);
+        el.style.transition = 'transform .18s ease-in';
+        el.style.transform  = `translate(${driftX}px,${fallY}px) rotate(${tilt}deg)`;
+      }, 220);
+    }, 1700);
 
     setTimeout(() => {
       let blinks = 0;
@@ -659,45 +669,45 @@
           clearInterval(blinkInt);
           el.style.transition = 'opacity .35s ease, transform .35s ease';
           el.style.opacity = '0';
-          el.style.transform = `translate(${driftX}px,${fallDist - 6}px) rotate(${tilt}deg) scale(.85)`;
+          el.style.transform = `translate(${driftX}px,${fallY - 6}px) rotate(${tilt}deg) scale(.85)`;
           setTimeout(() => {
             el.remove();
-            spawnAlienGhost(cx + driftX, fallTo);
+            spawnAlienGhost(cx + driftX, landY);
           }, 360);
         }
       }, 180);
-    }, 1250);
+    }, 2200);
   }
 
   function spawnAlienGhost(cx, cy) {
     const el = document.createElement('div');
-    const w = 50, h = 62;
+    const w = 36, h = 46;
     el.style.cssText =
       `position:fixed;z-index:9580;pointer-events:none;will-change:transform,opacity;` +
       `left:${cx - w/2}px;top:${cy - h/2}px;width:${w}px;height:${h}px;opacity:0;` +
       `transition:opacity .5s ease-out, transform .5s ease-out;` +
-      `filter:drop-shadow(0 0 10px #00ff88aa) drop-shadow(0 0 20px #00ff8855);`;
+      `filter:drop-shadow(0 0 6px #00ff8855) drop-shadow(0 0 14px #00ff8833);`;
     el.innerHTML =
       `<svg viewBox="0 0 40 50" width="${w}" height="${h}">` +
         `<defs><radialGradient id="ghGlow" cx="50%" cy="42%" r="62%">` +
-          `<stop offset="0%" stop-color="#aaffcc" stop-opacity=".95"/>` +
-          `<stop offset="100%" stop-color="#00ff88" stop-opacity=".82"/>` +
+          `<stop offset="0%" stop-color="#aaffcc" stop-opacity=".55"/>` +
+          `<stop offset="100%" stop-color="#00ff88" stop-opacity=".4"/>` +
         `</radialGradient></defs>` +
         `<path d="M 8 18 C 8 6,14 2,20 2 C 26 2,32 6,32 18 L 32 38 ` +
               `C 30 44,28 38,26 42 C 23 38,20 44,17 38 C 14 44,11 38,8 42 Z" ` +
               `fill="url(#ghGlow)"/>` +
-        `<ellipse cx="15" cy="16" rx="2.5" ry="3.5" fill="#001a0d"/>` +
-        `<ellipse cx="25" cy="16" rx="2.5" ry="3.5" fill="#001a0d"/>` +
-        `<circle cx="15.7" cy="14.8" r=".8" fill="#fff" opacity=".9"/>` +
-        `<circle cx="25.7" cy="14.8" r=".8" fill="#fff" opacity=".9"/>` +
-        `<ellipse cx="20" cy="24" rx="2.4" ry="1" fill="#001a0d"/>` +
+        `<ellipse cx="15" cy="16" rx="2.5" ry="3.5" fill="#001a0d" opacity=".7"/>` +
+        `<ellipse cx="25" cy="16" rx="2.5" ry="3.5" fill="#001a0d" opacity=".7"/>` +
+        `<circle cx="15.7" cy="14.8" r=".8" fill="#fff" opacity=".7"/>` +
+        `<circle cx="25.7" cy="14.8" r=".8" fill="#fff" opacity=".7"/>` +
+        `<ellipse cx="20" cy="24" rx="2.4" ry="1" fill="#001a0d" opacity=".6"/>` +
       `</svg>`;
     document.body.appendChild(el);
 
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      el.style.opacity = '1';
+    setTimeout(() => {
+      el.style.opacity = '0.65';
       el.style.transform = 'translateY(-10px)';
-    }));
+    }, 30);
 
     setTimeout(() => {
       el.style.transition = 'transform 2.4s cubic-bezier(.3,.1,.5,1), opacity 1.8s ease-in .6s';
