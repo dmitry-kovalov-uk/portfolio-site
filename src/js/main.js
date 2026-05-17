@@ -636,9 +636,15 @@
     dock.addEventListener('mouseenter', () => { if (!flightActive) startFlight(); });
     dock.addEventListener('click',      () => { if (flightActive)  window.unminimize(); });
   } else {
+    let catchArmedAt = 0;
     dock.addEventListener('click', () => {
-      if (flightActive) window.unminimize();
-      else              startFlight();
+      if (flightActive) {
+        if (performance.now() < catchArmedAt) return;
+        window.unminimize();
+      } else {
+        startFlight();
+        catchArmedAt = performance.now() + 500;
+      }
     });
   }
 
