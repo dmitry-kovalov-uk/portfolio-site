@@ -611,6 +611,104 @@
     setTimeout(() => flash.remove(), 620);
   }
 
+  function spawnWreck(cx, cy) {
+    const el = document.createElement('div');
+    const size = 60;
+    el.style.cssText =
+      `position:fixed;z-index:9560;pointer-events:none;will-change:transform,opacity;` +
+      `left:${cx - size/2}px;top:${cy - size/2}px;width:${size}px;height:${size}px;` +
+      `transition:transform .9s cubic-bezier(.45,.02,.85,.6);` +
+      `filter:drop-shadow(0 0 6px #00331acc);`;
+    el.innerHTML =
+      `<svg viewBox="0 0 32 32" width="60" height="60">` +
+        `<ellipse cx="16" cy="21" rx="14" ry="5" fill="#3d6a4a"/>` +
+        `<ellipse cx="16" cy="17" rx="8" ry="6" fill="#2a5535"/>` +
+        `<ellipse cx="16" cy="14" rx="4" ry="3" fill="#4a7766" opacity=".5"/>` +
+        `<circle cx="9"  cy="22" r="1.5" fill="#665533"/>` +
+        `<circle cx="16" cy="23" r="1.5" fill="#664433"/>` +
+        `<circle cx="23" cy="22" r="1.5" fill="#335566"/>` +
+        `<path d="M 2 18 L 6 14 L 10 19 L 14 14 L 18 19 L 22 14 L 26 19 L 30 15" stroke="#000" stroke-width="2" fill="none"/>` +
+        `<path d="M 14 14 L 17 26 L 19 16 L 21 28" stroke="#000" stroke-width="1.2" fill="none"/>` +
+      `</svg>`;
+    document.body.appendChild(el);
+
+    const fallTo = window.innerHeight - 50;
+    const fallDist = fallTo - cy;
+    const driftX = (Math.random() - .5) * 80;
+    const tilt = (Math.random() - .5) * 60;
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.style.transform = `translate(${driftX}px,${fallDist}px) rotate(${tilt}deg)`;
+    }));
+
+    setTimeout(() => {
+      el.style.transition = 'transform .18s ease-out';
+      el.style.transform  = `translate(${driftX}px,${fallDist - 14}px) rotate(${tilt}deg)`;
+      setTimeout(() => {
+        el.style.transform = `translate(${driftX}px,${fallDist}px) rotate(${tilt}deg)`;
+      }, 180);
+    }, 900);
+
+    setTimeout(() => {
+      let blinks = 0;
+      const blinkInt = setInterval(() => {
+        el.style.transition = 'opacity .12s ease';
+        el.style.opacity = (el.style.opacity === '0.15') ? '1' : '0.15';
+        blinks++;
+        if (blinks >= 8) {
+          clearInterval(blinkInt);
+          el.style.transition = 'opacity .35s ease, transform .35s ease';
+          el.style.opacity = '0';
+          el.style.transform = `translate(${driftX}px,${fallDist - 6}px) rotate(${tilt}deg) scale(.85)`;
+          setTimeout(() => {
+            el.remove();
+            spawnAlienGhost(cx + driftX, fallTo);
+          }, 360);
+        }
+      }, 180);
+    }, 1250);
+  }
+
+  function spawnAlienGhost(cx, cy) {
+    const el = document.createElement('div');
+    const w = 50, h = 62;
+    el.style.cssText =
+      `position:fixed;z-index:9580;pointer-events:none;will-change:transform,opacity;` +
+      `left:${cx - w/2}px;top:${cy - h/2}px;width:${w}px;height:${h}px;opacity:0;` +
+      `transition:opacity .5s ease-out, transform .5s ease-out;` +
+      `filter:drop-shadow(0 0 10px #00ff88aa) drop-shadow(0 0 20px #00ff8855);`;
+    el.innerHTML =
+      `<svg viewBox="0 0 40 50" width="${w}" height="${h}">` +
+        `<defs><radialGradient id="ghGlow" cx="50%" cy="42%" r="62%">` +
+          `<stop offset="0%" stop-color="#aaffcc" stop-opacity=".95"/>` +
+          `<stop offset="100%" stop-color="#00ff88" stop-opacity=".82"/>` +
+        `</radialGradient></defs>` +
+        `<path d="M 8 18 C 8 6,14 2,20 2 C 26 2,32 6,32 18 L 32 38 ` +
+              `C 30 44,28 38,26 42 C 23 38,20 44,17 38 C 14 44,11 38,8 42 Z" ` +
+              `fill="url(#ghGlow)"/>` +
+        `<ellipse cx="15" cy="16" rx="2.5" ry="3.5" fill="#001a0d"/>` +
+        `<ellipse cx="25" cy="16" rx="2.5" ry="3.5" fill="#001a0d"/>` +
+        `<circle cx="15.7" cy="14.8" r=".8" fill="#fff" opacity=".9"/>` +
+        `<circle cx="25.7" cy="14.8" r=".8" fill="#fff" opacity=".9"/>` +
+        `<ellipse cx="20" cy="24" rx="2.4" ry="1" fill="#001a0d"/>` +
+      `</svg>`;
+    document.body.appendChild(el);
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(-10px)';
+    }));
+
+    setTimeout(() => {
+      el.style.transition = 'transform 2.4s cubic-bezier(.3,.1,.5,1), opacity 1.8s ease-in .6s';
+      const driftX = (Math.random() - .5) * 90;
+      el.style.transform = `translate(${driftX}px,-${cy + 120}px)`;
+      el.style.opacity = '0';
+    }, 480);
+
+    setTimeout(() => el.remove(), 3100);
+  }
+
   window.unminimize = () => {
     stopFlight();
     const dockRect = dock.querySelector('.d-app').getBoundingClientRect();
@@ -618,6 +716,7 @@
     const cy = dockRect.top  + dockRect.height / 2;
     dock.classList.remove('show');
     explode(cx, cy);
+    spawnWreck(cx, cy);
     setTimeout(() => {
       wrap.classList.remove('reborn');
       void wrap.offsetHeight;
