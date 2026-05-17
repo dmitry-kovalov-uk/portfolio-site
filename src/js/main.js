@@ -633,31 +633,25 @@
       `</svg>`;
     document.body.appendChild(el);
 
-    const driftX = (Math.random() - .5) * 80;
-    const tilt   = (Math.random() - .5) * 60;
-    const peakY  = Math.max(60, cy - 180);
-    const landY  = Math.min(window.innerHeight - 60, cy + 140);
-    const popY   = peakY - cy;
-    const fallY  = landY - cy;
+    const driftX     = (Math.random() - .5) * 120;
+    const tilt       = (Math.random() - .5) * 70;
+    const maxLandY   = window.innerHeight - 50;
+    const wantFall   = 120 + Math.random() * 180;
+    const fallY      = Math.min(wantFall, maxLandY - cy);
 
     setTimeout(() => {
-      el.style.transition = 'transform .35s cubic-bezier(.2,.7,.5,1)';
-      el.style.transform  = `translate(${driftX*.35}px,${popY}px) rotate(${tilt*.4}deg)`;
+      el.style.transition = 'transform 1.1s cubic-bezier(.55,0,.9,.55)';
+      el.style.transform  = `translate(${driftX}px,${fallY}px) rotate(${tilt}deg)`;
     }, 30);
 
     setTimeout(() => {
-      el.style.transition = 'transform 1.25s cubic-bezier(.55,0,.9,.55)';
-      el.style.transform  = `translate(${driftX}px,${fallY}px) rotate(${tilt}deg)`;
-    }, 410);
-
-    setTimeout(() => {
-      el.style.transition = 'transform .22s ease-out';
-      el.style.transform  = `translate(${driftX}px,${fallY - 16}px) rotate(${tilt}deg)`;
+      el.style.transition = 'transform .2s ease-out';
+      el.style.transform  = `translate(${driftX}px,${fallY - 14}px) rotate(${tilt}deg)`;
       setTimeout(() => {
-        el.style.transition = 'transform .18s ease-in';
+        el.style.transition = 'transform .16s ease-in';
         el.style.transform  = `translate(${driftX}px,${fallY}px) rotate(${tilt}deg)`;
-      }, 220);
-    }, 1700);
+      }, 200);
+    }, 1180);
 
     setTimeout(() => {
       let blinks = 0;
@@ -672,11 +666,11 @@
           el.style.transform = `translate(${driftX}px,${fallY - 6}px) rotate(${tilt}deg) scale(.85)`;
           setTimeout(() => {
             el.remove();
-            spawnAlienGhost(cx + driftX, landY);
+            spawnAlienGhost(cx + driftX, cy + fallY);
           }, 360);
         }
       }, 180);
-    }, 2200);
+    }, 1700);
   }
 
   function spawnAlienGhost(cx, cy) {
@@ -720,10 +714,10 @@
   }
 
   window.unminimize = () => {
-    stopFlight();
     const dockRect = dock.querySelector('.d-app').getBoundingClientRect();
     const cx = dockRect.left + dockRect.width / 2;
     const cy = dockRect.top  + dockRect.height / 2;
+    stopFlight();
     dock.classList.remove('show');
     explode(cx, cy);
     spawnWreck(cx, cy);
