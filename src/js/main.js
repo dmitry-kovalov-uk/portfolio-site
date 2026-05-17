@@ -96,6 +96,8 @@
   }));
   const iParts = [];
   let   iT0 = null, forgeTriggered = false;
+  let   iShipLive = { x: 0, y: 0, r: 0, alive: false };
+  let   introCaught = false, introHintShown = false;
 
   function iShipPos(t) {
     const W = fullCnv.width, H = fullCnv.height;
@@ -139,7 +141,7 @@
     }
 
     /* ship: enters at t=0.08 */
-    if (t > 0.08) {
+    if (t > 0.08 && !introCaught) {
       const shipT = Math.min(1, (t - 0.08) / 0.72);
       const pos   = iShipPos(shipT);
       const ang   = iShipAngle(shipT);
@@ -153,6 +155,13 @@
       tickParts(iParts);
       drawParts(fCtx, iParts);
       drawShipOn(fCtx, pos.x, pos.y, ang);
+
+      /* catchable: track live pos */
+      iShipLive.x = pos.x; iShipLive.y = pos.y; iShipLive.r = 46;
+      iShipLive.alive = shipT < .85;
+      if (iShipLive.alive && !introHintShown && shipT > .04) {
+        introHintShown = true; showIntroHint();
+      }
 
       /* forge glow emanating from ship position as it nears centre */
       if (shipT > .70) {
@@ -448,6 +457,74 @@
     requestAnimationFrame(persistFrame);
   }
 
+  /* ── Catchable intro ship ─────────────────────────────────────── */
+  let introHintEl = null;
+  function showIntroHint() {
+    introHintEl = document.createElement('div');
+    introHintEl.textContent = '› catch it ‹';
+    introHintEl.style.cssText =
+      `position:fixed;z-index:9700;pointer-events:none;` +
+      `left:50%;top:14%;transform:translate(-50%,-50%);` +
+      `font:600 .72rem/1 'Courier New',monospace;letter-spacing:.22em;` +
+      `color:#00ff88;text-shadow:0 0 8px #00ff8866,0 0 16px #00ff8844;` +
+      `opacity:0;transition:opacity .35s ease;text-transform:uppercase;`;
+    document.body.appendChild(introHintEl);
+    requestAnimationFrame(() => { if (introHintEl) introHintEl.style.opacity = '.85'; });
+    setTimeout(hideIntroHint, 2200);
+  }
+  function hideIntroHint() {
+    if (!introHintEl) return;
+    const el = introHintEl; introHintEl = null;
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 380);
+  }
+
+  function catchIntroShip(px, py) {
+    if (introCaught) return;
+    introCaught = true;
+    iShipLive.alive = false;
+    fullCnv.style.pointerEvents = 'none';
+    fullCnv.style.cursor = '';
+    hideIntroHint();
+    const cx = px ?? iShipLive.x;
+    const cy = py ?? iShipLive.y;
+    if (typeof window.explode === 'function') {
+      window.explode(cx, cy, {
+        colors: ['#ff8800', '#ff8800', '#ffaa00', '#ff5500', '#ffdd66'],
+        flash:  '255,136,0'
+      });
+    }
+    /* Trigger forge + reveal immediately, fast-forward intro to its end */
+    if (!forgeTriggered) {
+      forgeTriggered = true;
+      term.classList.add('forged');
+      setTimeout(revealContent, 600);
+    }
+    /* Jump cover fade-out so the dark veil clears quickly */
+    const remaining = INTRO_DUR * (1 - COVER_END);
+    iT0 = performance.now() - INTRO_DUR * COVER_END;
+    setTimeout(() => {
+      fullCnv.style.display = 'none';
+    }, remaining + 80);
+  }
+
+  function introPointerMove(e) {
+    if (introCaught || !iShipLive.alive) { fullCnv.style.cursor = ''; return; }
+    const dx = e.clientX - iShipLive.x, dy = e.clientY - iShipLive.y;
+    fullCnv.style.cursor = (dx*dx + dy*dy <= iShipLive.r * iShipLive.r) ? 'pointer' : '';
+  }
+  function introPointerDown(e) {
+    if (introCaught || !iShipLive.alive) return;
+    const dx = e.clientX - iShipLive.x, dy = e.clientY - iShipLive.y;
+    if (dx*dx + dy*dy <= iShipLive.r * iShipLive.r) {
+      e.preventDefault();
+      catchIntroShip(iShipLive.x, iShipLive.y);
+    }
+  }
+  fullCnv.style.pointerEvents = 'auto';
+  fullCnv.addEventListener('pointermove', introPointerMove);
+  fullCnv.addEventListener('pointerdown', introPointerDown);
+
   /* ── Kick off ─────────────────────────────────────────────────── */
   setTimeout(() => requestAnimationFrame(introFrame), 200);
 })();
@@ -573,8 +650,11 @@
     spawnGhost(termRect, dockRect);
   });
 
-  function explode(cx, cy) {
-    const colors = ['#00ff88', '#00ff88', '#00ff88', '#ffaa00', '#00d4ff'];
+  window.explode = explode;
+  function explode(cx, cy, opts) {
+    const palette = (opts && opts.colors) || ['#00ff88', '#00ff88', '#00ff88', '#ffaa00', '#00d4ff'];
+    const flashColor = (opts && opts.flash) || '0,255,136';
+    const colors = palette;
     for (let i = 0; i < 42; i++) {
       const p = document.createElement('div');
       const ang = (i / 42) * Math.PI * 2 + (Math.random() - .5) * .3;
@@ -601,7 +681,7 @@
     flash.style.cssText =
       `position:fixed;z-index:9550;pointer-events:none;` +
       `left:${cx-70}px;top:${cy-70}px;width:140px;height:140px;border-radius:50%;` +
-      `background:radial-gradient(circle,rgba(0,255,136,.95) 0%,rgba(0,255,136,.4) 30%,rgba(0,255,136,0) 70%);` +
+      `background:radial-gradient(circle,rgba(${flashColor},.95) 0%,rgba(${flashColor},.4) 30%,rgba(${flashColor},0) 70%);` +
       `transition:transform .55s ease-out,opacity .55s ease-out;`;
     document.body.appendChild(flash);
     requestAnimationFrame(() => requestAnimationFrame(() => {
