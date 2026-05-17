@@ -86,7 +86,7 @@
   /* ═══════════════════════════════════════════════════════════════
      INTRO — full-page canvas
   ═══════════════════════════════════════════════════════════════ */
-  const INTRO_DUR  = 4500;
+  const INTRO_DUR  = 2800;
   const FORGE_T    = 0.60;   // trigger forge at this normalised time
   const COVER_END  = 0.82;   // dark cover fully gone by here
 
@@ -180,7 +180,7 @@
     if (t >= FORGE_T && !forgeTriggered) {
       forgeTriggered = true;
       term.classList.add('forged');
-      setTimeout(revealContent, 900);
+      setTimeout(revealContent, 500);
     }
 
     if (t < 1) {
