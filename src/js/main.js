@@ -636,11 +636,12 @@
     const driftX     = (Math.random() - .5) * 120;
     const tilt       = (Math.random() - .5) * 70;
     const maxLandY   = window.innerHeight - 50;
-    const wantFall   = 120 + Math.random() * 180;
-    const fallY      = Math.min(wantFall, maxLandY - cy);
+    const fallY      = Math.max(40, maxLandY - cy);
+    const fallDur    = Math.max(0.9, Math.min(2.2, fallY / 520));
+    const fallMs     = fallDur * 1000;
 
     setTimeout(() => {
-      el.style.transition = 'transform 1.1s cubic-bezier(.55,0,.9,.55)';
+      el.style.transition = `transform ${fallDur}s cubic-bezier(.45,0,.85,.5)`;
       el.style.transform  = `translate(${driftX}px,${fallY}px) rotate(${tilt}deg)`;
     }, 30);
 
@@ -651,11 +652,12 @@
         el.style.transition = 'transform .16s ease-in';
         el.style.transform  = `translate(${driftX}px,${fallY}px) rotate(${tilt}deg)`;
       }, 200);
-    }, 1180);
+    }, 30 + fallMs);
 
     setTimeout(() => {
       let blinks = 0;
       const blinkInt = setInterval(() => {
+
         el.style.transition = 'opacity .12s ease';
         el.style.opacity = (el.style.opacity === '0.15') ? '1' : '0.15';
         blinks++;
@@ -670,7 +672,7 @@
           }, 360);
         }
       }, 180);
-    }, 1700);
+    }, 30 + fallMs + 560);
   }
 
   function spawnAlienGhost(cx, cy) {
