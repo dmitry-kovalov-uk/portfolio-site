@@ -573,13 +573,57 @@
     spawnGhost(termRect, dockRect);
   });
 
+  function explode(cx, cy) {
+    const colors = ['#00ff88', '#00ff88', '#00ff88', '#ffaa00', '#00d4ff'];
+    for (let i = 0; i < 42; i++) {
+      const p = document.createElement('div');
+      const ang = (i / 42) * Math.PI * 2 + (Math.random() - .5) * .3;
+      const dist = 90 + Math.random() * 230;
+      const dx = Math.cos(ang) * dist;
+      const dy = Math.sin(ang) * dist;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const size = 3 + Math.random() * 6;
+      const dur = 650 + Math.random() * 450;
+      p.style.cssText =
+        `position:fixed;z-index:9600;pointer-events:none;will-change:transform,opacity;` +
+        `left:${cx - size/2}px;top:${cy - size/2}px;width:${size}px;height:${size}px;` +
+        `background:${color};border-radius:50%;` +
+        `box-shadow:0 0 ${size*3}px ${color},0 0 ${size*6}px ${color};` +
+        `transition:transform ${dur}ms cubic-bezier(.1,.7,.3,1),opacity ${dur}ms ease-out;`;
+      document.body.appendChild(p);
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        p.style.transform = `translate(${dx}px,${dy}px) scale(.15)`;
+        p.style.opacity = '0';
+      }));
+      setTimeout(() => p.remove(), dur + 60);
+    }
+    const flash = document.createElement('div');
+    flash.style.cssText =
+      `position:fixed;z-index:9550;pointer-events:none;` +
+      `left:${cx-70}px;top:${cy-70}px;width:140px;height:140px;border-radius:50%;` +
+      `background:radial-gradient(circle,rgba(0,255,136,.95) 0%,rgba(0,255,136,.4) 30%,rgba(0,255,136,0) 70%);` +
+      `transition:transform .55s ease-out,opacity .55s ease-out;`;
+    document.body.appendChild(flash);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      flash.style.transform = 'scale(3.2)';
+      flash.style.opacity = '0';
+    }));
+    setTimeout(() => flash.remove(), 620);
+  }
+
   window.unminimize = () => {
     stopFlight();
     const dockRect = dock.querySelector('.d-app').getBoundingClientRect();
+    const cx = dockRect.left + dockRect.width / 2;
+    const cy = dockRect.top  + dockRect.height / 2;
     dock.classList.remove('show');
-    spawnGhost(dockRect, wrap.getBoundingClientRect(), () => {
+    explode(cx, cy);
+    setTimeout(() => {
+      wrap.classList.remove('reborn');
+      void wrap.offsetHeight;
       wrap.style.visibility = 'visible';
-    });
+      wrap.classList.add('reborn');
+    }, 180);
   };
 
   /* ── Green: fullscreen ── */
