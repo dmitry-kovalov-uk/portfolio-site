@@ -197,8 +197,39 @@
       setTimeout(() => {
         const el = document.getElementById(id);
         if (el) el.classList.add('show');
+        if (id === 'r0') animateSysLine();
       }, i * 160);
     });
+  }
+
+  function animateSysLine() {
+    const prog = document.getElementById('sys-prog');
+    const dots = document.getElementById('sys-dots');
+    const ok   = document.getElementById('sys-ok');
+    const cur  = document.getElementById('sys-cur');
+    if (!prog || !dots || !ok || prog.dataset.done) return;
+    prog.dataset.done = '1';
+    const txt = 'LOADING PROFILE DATABASE';
+    let i = 0;
+    (function typeNext() {
+      if (i >= txt.length) { setTimeout(addDots, 450); return; }
+      prog.textContent += txt[i++];
+      setTimeout(typeNext, 45 + Math.random() * 55);
+    })();
+    function addDots() {
+      let n = 0;
+      (function tick() {
+        if (n >= 3) { setTimeout(showOK, 650); return; }
+        dots.textContent += '.';
+        n++;
+        setTimeout(tick, 520);
+      })();
+    }
+    function showOK() {
+      ok.textContent = '  [OK]';
+      ok.classList.add('show');
+      if (cur) cur.classList.add('gone');
+    }
   }
 
   /* ═══════════════════════════════════════════════════════════════

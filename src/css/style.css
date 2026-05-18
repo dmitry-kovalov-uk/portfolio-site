@@ -141,6 +141,15 @@
     .rv.show { animation: from-exhaust .6s cubic-bezier(.22,1,.36,1) both; pointer-events: auto; }
 
     .sys-line { font:.68rem/1 'Courier New',monospace; color:var(--green); letter-spacing:.08em; margin-bottom:20px; }
+    .sys-cur  { display:inline-block; margin-left:2px; color:var(--green); animation:sys-blink 1s steps(1) infinite; }
+    .sys-cur.gone { display:none; }
+    @keyframes sys-blink { 50% { opacity: 0; } }
+    #sys-ok { color:#7fffa7; text-shadow:0 0 8px #00ff8866, 0 0 18px #00ff8844; font-weight:700; opacity:0; transition:opacity .12s ease; }
+    #sys-ok.show { opacity:1; animation:sys-ok-flash .4s ease-out; }
+    @keyframes sys-ok-flash {
+      0%   { color:#fff; text-shadow:0 0 14px #fff, 0 0 28px #00ff88; }
+      100% { color:#7fffa7; text-shadow:0 0 8px #00ff8866, 0 0 18px #00ff8844; }
+    }
     .hero-name { font:700 clamp(2rem,4.5vw,3rem)/1.1 'Courier New',monospace; color:var(--cyan); letter-spacing:.04em; margin-bottom:6px; text-shadow:0 0 28px #00d4ff66; }
     .hero-role { font:.9rem/1 'Courier New',monospace; color:var(--amber); letter-spacing:.14em; margin-bottom:18px; text-shadow:0 0 8px #ff880055; }
     .hero-bio  { font:.78rem/1.8 'Courier New',monospace; color:#5a9aaa; max-width:480px; margin-bottom:30px; text-shadow:0 0 12px #00d4ff33; }
