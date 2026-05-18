@@ -97,7 +97,7 @@
   const iParts = [];
   let   iT0 = null, forgeTriggered = false;
   let   iShipLive = { x: 0, y: 0, r: 0, alive: false };
-  let   introCaught = false, introHintShown = false;
+  let   introCaught = false;
 
   function iShipPos(t) {
     const W = fullCnv.width, H = fullCnv.height;
@@ -159,9 +159,6 @@
       /* catchable: track live pos */
       iShipLive.x = pos.x; iShipLive.y = pos.y; iShipLive.r = 46;
       iShipLive.alive = shipT < .85;
-      if (iShipLive.alive && !introHintShown && shipT > .04) {
-        introHintShown = true; showIntroHint();
-      }
 
       /* forge glow emanating from ship position as it nears centre */
       if (shipT > .70) {
@@ -458,34 +455,12 @@
   }
 
   /* ── Catchable intro ship ─────────────────────────────────────── */
-  let introHintEl = null;
-  function showIntroHint() {
-    introHintEl = document.createElement('div');
-    introHintEl.textContent = '› catch it ‹';
-    introHintEl.style.cssText =
-      `position:fixed;z-index:9700;pointer-events:none;` +
-      `left:50%;top:14%;transform:translate(-50%,-50%);` +
-      `font:600 .72rem/1 'Courier New',monospace;letter-spacing:.22em;` +
-      `color:#00ff88;text-shadow:0 0 8px #00ff8866,0 0 16px #00ff8844;` +
-      `opacity:0;transition:opacity .35s ease;text-transform:uppercase;`;
-    document.body.appendChild(introHintEl);
-    requestAnimationFrame(() => { if (introHintEl) introHintEl.style.opacity = '.85'; });
-    setTimeout(hideIntroHint, 2200);
-  }
-  function hideIntroHint() {
-    if (!introHintEl) return;
-    const el = introHintEl; introHintEl = null;
-    el.style.opacity = '0';
-    setTimeout(() => el.remove(), 380);
-  }
-
   function catchIntroShip(px, py) {
     if (introCaught) return;
     introCaught = true;
     iShipLive.alive = false;
     fullCnv.style.pointerEvents = 'none';
     fullCnv.style.cursor = '';
-    hideIntroHint();
     const cx = px ?? iShipLive.x;
     const cy = py ?? iShipLive.y;
     if (typeof window.explode === 'function') {
@@ -563,6 +538,7 @@
 
   let flightTimer = null;
   let flightActive = false;
+  let catchArmedAt = 0;
   let catchHintEl = null;
   const dockLabel = dock.querySelector('.d-label');
   const canHover = window.matchMedia('(hover: hover)').matches;
@@ -606,6 +582,7 @@
   function startFlight() {
     if (flightActive) return;
     flightActive = true;
+    catchArmedAt = performance.now() + 800;
     dock.classList.add('flying');
     if (dockLabel) dockLabel.style.display = 'none';
     showCatchHint();
@@ -634,19 +611,15 @@
 
   if (canHover) {
     dock.addEventListener('mouseenter', () => { if (!flightActive) startFlight(); });
-    dock.addEventListener('click',      () => { if (flightActive)  window.unminimize(); });
-  } else {
-    let catchArmedAt = 0;
-    dock.addEventListener('click', () => {
-      if (flightActive) {
-        if (performance.now() < catchArmedAt) return;
-        window.unminimize();
-      } else {
-        startFlight();
-        catchArmedAt = performance.now() + 500;
-      }
-    });
   }
+  dock.addEventListener('click', () => {
+    if (flightActive) {
+      if (performance.now() < catchArmedAt) return;
+      window.unminimize();
+    } else {
+      startFlight();
+    }
+  });
 
   document.getElementById('btn-min').addEventListener('click', () => {
     const termRect = wrap.getBoundingClientRect();
