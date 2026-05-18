@@ -1,4 +1,6 @@
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    a, button, .light, .s-btn, #dock-icon, #dock-icon .d-app, .tag, .btn { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+    a:focus, button:focus, .light:focus, #dock-icon:focus, .light:focus-visible, #dock-icon:focus-visible { outline: none; }
 
     :root {
       --cyan:      #00d4ff;
