@@ -11,7 +11,7 @@
   function resizeFull() { fullCnv.width = window.innerWidth; fullCnv.height = window.innerHeight; }
   function resizeScreen() { cnv.width = screen.offsetWidth; cnv.height = screen.offsetHeight; }
   resizeFull(); resizeScreen();
-  window.addEventListener('resize', () => { resizeFull(); resizeScreen(); });
+  window.addEventListener('resize', () => { resizeFull(); resizeScreen(); if (typeof bakeStars === 'function') bakeStars(); });
 
   /* ── IP fetch ─────────────────────────────────────────────────── */
   let visitorIP = 'RESOLVING';
@@ -71,16 +71,33 @@
     }
   }
 
+  /* Pre-baked particle glow sprites — one createRadialGradient at init instead
+     of one per-particle per-frame. Sprite radius maps 1:1 to the old size*3 glow,
+     with the solid core at S/6 (= size relative to the glow) so the result is
+     pixel-faithful to the original two-arc-plus-gradient draw. */
+  function makeGlowSprite(coreRGB, coreA, glowRGB) {
+    const S = 64, c = document.createElement('canvas');
+    c.width = c.height = S;
+    const g = c.getContext('2d'), cx = S / 2;
+    const grad = g.createRadialGradient(cx, cx, 0, cx, cx, cx);
+    grad.addColorStop(0, `rgba(${glowRGB},.2)`);
+    grad.addColorStop(1, `rgba(${glowRGB},0)`);
+    g.fillStyle = grad; g.fillRect(0, 0, S, S);
+    g.beginPath(); g.arc(cx, cx, S / 6, 0, Math.PI * 2);
+    g.fillStyle = `rgba(${coreRGB},${coreA})`; g.fill();
+    return c;
+  }
+  const P_ORANGE = makeGlowSprite('255,120,0', 1,  '255,100,0');
+  const P_CYAN   = makeGlowSprite('0,180,255', .8, '0,160,255');
+
   function drawParts(ac, store) {
-    store.forEach(p => {
-      const col = p.cyan ? `rgba(0,180,255,${p.life*.8})` : `rgba(255,120,0,${p.life})`;
-      ac.beginPath(); ac.arc(p.x, p.y, p.size, 0, Math.PI*2);
-      ac.fillStyle = col; ac.fill();
-      const g = ac.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*3);
-      g.addColorStop(0, p.cyan?`rgba(0,160,255,${p.life*.2})`:`rgba(255,100,0,${p.life*.2})`);
-      g.addColorStop(1,'transparent');
-      ac.beginPath(); ac.arc(p.x,p.y,p.size*3,0,Math.PI*2); ac.fillStyle=g; ac.fill();
-    });
+    for (let i = 0; i < store.length; i++) {
+      const p = store[i];
+      const r = p.size * 3;
+      ac.globalAlpha = p.life > 0 ? p.life : 0;
+      ac.drawImage(p.cyan ? P_CYAN : P_ORANGE, p.x - r, p.y - r, r + r, r + r);
+    }
+    ac.globalAlpha = 1;
   }
 
   /* ═══════════════════════════════════════════════════════════════
@@ -94,6 +111,23 @@
     x: Math.random(), y: Math.random(),
     r: Math.random()*1.3+.2, a: Math.random()*.5+.15
   }));
+  /* Bake the star field once to an offscreen canvas — 120 arc-fills per frame
+     become a single drawImage. Per-frame fade is applied via globalAlpha, which
+     multiplies each star's baked alpha exactly like the old s.a*starA. */
+  let starSprite = null;
+  function bakeStars() {
+    starSprite = document.createElement('canvas');
+    starSprite.width  = fullCnv.width;
+    starSprite.height = fullCnv.height;
+    const g = starSprite.getContext('2d');
+    for (const s of introStars) {
+      g.beginPath();
+      g.arc(s.x*fullCnv.width, s.y*fullCnv.height, s.r, 0, Math.PI*2);
+      g.fillStyle = `rgba(140,190,255,${s.a})`;
+      g.fill();
+    }
+  }
+  bakeStars();
   const iParts = [];
   let   iT0 = null, forgeTriggered = false;
   let   iShipLive = { x: 0, y: 0, r: 0, alive: false };
@@ -118,26 +152,31 @@
     if (!iT0) iT0 = ts;
     const t = Math.min((ts - iT0) / INTRO_DUR, 1);
 
-    fCtx.clearRect(0, 0, fullCnv.width, fullCnv.height);
+    const W = fullCnv.width, H = fullCnv.height;
 
-    /* dark cover: fades away between FORGE_T and COVER_END */
+    /* dark cover: fades away between FORGE_T and COVER_END.
+       While fully opaque the fillRect repaints everything, so the separate
+       clearRect is redundant — skip it for ~60% of frames. */
     const coverA = t < FORGE_T ? 1 : Math.max(0, 1 - (t-FORGE_T)/(COVER_END-FORGE_T));
-    if (coverA > 0) {
-      fCtx.globalAlpha = coverA;
+    if (coverA >= 1) {
       fCtx.fillStyle = '#030508';
-      fCtx.fillRect(0, 0, fullCnv.width, fullCnv.height);
-      fCtx.globalAlpha = 1;
+      fCtx.fillRect(0, 0, W, H);
+    } else {
+      fCtx.clearRect(0, 0, W, H);
+      if (coverA > 0) {
+        fCtx.globalAlpha = coverA;
+        fCtx.fillStyle = '#030508';
+        fCtx.fillRect(0, 0, W, H);
+        fCtx.globalAlpha = 1;
+      }
     }
 
     /* stars: fade in first 12%, fade out with cover */
     const starA = Math.min(1, t/.12) * Math.max(0, coverA);
-    if (starA > 0) {
-      introStars.forEach(s => {
-        fCtx.beginPath();
-        fCtx.arc(s.x*fullCnv.width, s.y*fullCnv.height, s.r, 0, Math.PI*2);
-        fCtx.fillStyle = `rgba(140,190,255,${s.a*starA})`;
-        fCtx.fill();
-      });
+    if (starA > 0 && starSprite) {
+      fCtx.globalAlpha = starA;
+      fCtx.drawImage(starSprite, 0, 0);
+      fCtx.globalAlpha = 1;
     }
 
     /* ship: enters at t=0.08 */
