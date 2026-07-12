@@ -279,6 +279,9 @@
   let radarAngle = -Math.PI/2;
   const radarBlips = [];
   function radarR() { return Math.min(cnv.width * .092, 68); }
+  /* Sweep-trail wedge alphas depend only on the wedge index, not the angle —
+     so the 38 colour strings are identical every frame. Build them once. */
+  const RADAR_WEDGE_COLORS = Array.from({length:38}, (_,i)=>`rgba(0,255,80,${(1-i/38)*.30})`);
 
   function drawRadar() {
     const R=radarR(), cx=cnv.width-R-14, cy=R+14;
@@ -289,7 +292,7 @@
     for (let i=0;i<38;i++) {
       const a0=radarAngle-1.15*(i/38), a1=radarAngle-1.15*((i+1)/38);
       ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,R,a0,a1,true); ctx.closePath();
-      ctx.fillStyle=`rgba(0,255,80,${(1-i/38)*.30})`; ctx.fill();
+      ctx.fillStyle=RADAR_WEDGE_COLORS[i]; ctx.fill();
     }
     [.33,.66,1].forEach(f=>{
       ctx.beginPath(); ctx.arc(cx,cy,R*f,0,Math.PI*2);
@@ -503,15 +506,22 @@
     persistFrame();
   }
 
+  /* The vignette gradient is identical every frame — cache it and only rebuild
+     when the canvas size changes, instead of allocating one per frame. */
+  let darkGrad = null, darkGradKey = '';
   function drawDarkOverlay() {
-    const grd = ctx.createRadialGradient(
-      cnv.width * .38, cnv.height * .45, 0,
-      cnv.width * .38, cnv.height * .45, cnv.width * .72
-    );
-    grd.addColorStop(0,   'rgba(0,8,16,.72)');
-    grd.addColorStop(0.7, 'rgba(0,8,16,.45)');
-    grd.addColorStop(1,   'rgba(0,8,16,0)');
-    ctx.fillStyle = grd;
+    const key = cnv.width + 'x' + cnv.height;
+    if (key !== darkGradKey) {
+      darkGrad = ctx.createRadialGradient(
+        cnv.width * .38, cnv.height * .45, 0,
+        cnv.width * .38, cnv.height * .45, cnv.width * .72
+      );
+      darkGrad.addColorStop(0,   'rgba(0,8,16,.72)');
+      darkGrad.addColorStop(0.7, 'rgba(0,8,16,.45)');
+      darkGrad.addColorStop(1,   'rgba(0,8,16,0)');
+      darkGradKey = key;
+    }
+    ctx.fillStyle = darkGrad;
     ctx.fillRect(0, 0, cnv.width, cnv.height);
   }
 
