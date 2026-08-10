@@ -48,14 +48,14 @@
       animation: reborn .7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes reborn {
-      0%   { opacity: 0; transform: scale(.4);  filter: brightness(1.8) blur(8px) saturate(.5); }
-      45%  { opacity: 1;                         filter: brightness(1.3) blur(2px); }
+      0%   { opacity: 0; transform: scale(.4);  filter: brightness(1.8) blur(4px) saturate(.5); }
+      45%  { opacity: 1;                         filter: brightness(1.3) blur(1.5px); }
       100% { opacity: 1; transform: scale(1);   filter: none; }
     }
     @keyframes forge {
-      0%   { opacity: 1; transform: scale(0.04);   filter: brightness(16) blur(40px) saturate(0); }
-      18%  {             transform: scale(0.18);   filter: brightness(8)  blur(20px) saturate(.2); }
-      45%  {             transform: scale(1.04);   filter: brightness(3)  blur(6px)  saturate(.7); }
+      0%   { opacity: 1; transform: scale(0.04);   filter: brightness(16) blur(10px) saturate(0); }
+      18%  {             transform: scale(0.18);   filter: brightness(8)  blur(7px)  saturate(.2); }
+      45%  {             transform: scale(1.04);   filter: brightness(3)  blur(4px)  saturate(.7); }
       70%  {             transform: scale(1.015);  filter: brightness(1.4) blur(1px) saturate(.95); }
       100% { opacity: 1; transform: scale(1);      filter: none; }
     }
@@ -135,7 +135,7 @@
     .s-content { position:relative; z-index:26; padding:28px 32px 34px; }
 
     @keyframes from-exhaust {
-      0%   { opacity:0; transform:translateX(22px) translateY(-12px) scale(.93); filter:blur(4px) brightness(2); }
+      0%   { opacity:0; transform:translateX(22px) translateY(-12px) scale(.93); filter:blur(2px) brightness(2); }
       55%  { opacity:1; filter:blur(0) brightness(1.15); }
       100% { opacity:1; transform:none; filter:none; }
     }
