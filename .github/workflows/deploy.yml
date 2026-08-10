@@ -3,6 +3,11 @@ name: Deploy
 on:
   push:
     branches: [main]
+    paths:
+      - 'src/**'
+      - 'Dockerfile'
+      - 'nginx.conf'
+      - 'docker-compose.yml'
 
 jobs:
   deploy:
