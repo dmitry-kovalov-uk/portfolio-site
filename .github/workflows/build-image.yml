@@ -1,0 +1,35 @@
+name: Build & push image (GHCR)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'Dockerfile'
+      - 'nginx.conf'
+  workflow_dispatch:        # позволяет запустить вручную кнопкой в Actions
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write        # нужно, чтобы GITHUB_TOKEN мог пушить в GHCR
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/dmitry-kovalov-uk/portfolio-site:latest
+            ghcr.io/dmitry-kovalov-uk/portfolio-site:${{ github.sha }}
