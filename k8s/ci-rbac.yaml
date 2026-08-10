@@ -1,0 +1,50 @@
+# Least-privilege identity for the CI/CD deploy step.
+# It can only read + patch Deployments in the default namespace — nothing else.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ci-deployer
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: deployer
+  namespace: default
+rules:
+  # kubectl set image → patch the Deployment; rollout status → get/list/watch it
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "patch", "update"]
+  # rollout status also inspects the ReplicaSets/Pods behind the Deployment
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ci-deployer-binding
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: ci-deployer
+    namespace: default
+roleRef:
+  kind: Role
+  name: deployer
+  apiGroup: rbac.authorization.k8s.io
+---
+# Long-lived token for the SA (k8s 1.24+ no longer auto-creates one).
+# Annotating a Secret of this type makes the token controller fill in .data.token + ca.crt.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ci-deployer-token
+  namespace: default
+  annotations:
+    kubernetes.io/service-account.name: ci-deployer
+type: kubernetes.io/service-account-token
