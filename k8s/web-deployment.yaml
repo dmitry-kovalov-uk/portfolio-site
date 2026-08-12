@@ -16,8 +16,8 @@ spec:
         app: web
     spec:
       containers:
-      - image: kovalov-site:v1
-        imagePullPolicy: IfNotPresent
+      - image: ghcr.io/dmitry-kovalov-uk/portfolio-site:latest
+        imagePullPolicy: Always
         name: kovalov-site
         resources:
           requests:
