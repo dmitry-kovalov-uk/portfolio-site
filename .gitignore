@@ -5,3 +5,6 @@
 *.tmp
 *.orig
 *.swp
+
+# Claude Code local tooling
+.claude/
